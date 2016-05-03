@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'ORCropImageController_Example', :exclusive => true do
+  pod 'ORCropImageController', :path => '../'
+end
+
+target 'ORCropImageController_Tests', :exclusive => true do
+  pod 'ORCropImageController', :path => '../'
+
+  
+end
