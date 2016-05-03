@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = "ORCropImageController"
   s.version          = "0.1.0"
-  s.summary          = "A short description of ORCropImageController."
+  s.summary          = "ORCropImageController allows user to perform crop of the image."
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -21,11 +21,11 @@ Pod::Spec.new do |s|
 TODO: Add long description of the pod here.
                        DESC
 
-  s.homepage         = "https://github.com/<GITHUB_USERNAME>/ORCropImageController"
-  # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
+  s.homepage         = "https://bitbucket.org/omegarinc/orcropimagecontroller"
+  # s.screenshots     = ""
   s.license          = 'MIT'
   s.author           = { "Nikita Egoshin" => "nikita.egoshin@omega-r.com" }
-  s.source           = { :git => "https://github.com/<GITHUB_USERNAME>/ORCropImageController.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://NikitaEgoshin@bitbucket.org/omegarinc/orcropimagecontroller.git", :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '8.0'
@@ -37,6 +37,5 @@ TODO: Add long description of the pod here.
   # }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  # s.frameworks = 'UIKit'
 end

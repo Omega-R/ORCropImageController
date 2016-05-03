@@ -1,0 +1,14 @@
+PODS:
+  - ORCropImageController (0.1.0)
+
+DEPENDENCIES:
+  - ORCropImageController (from `../`)
+
+EXTERNAL SOURCES:
+  ORCropImageController:
+    :path: ../
+
+SPEC CHECKSUMS:
+  ORCropImageController: fe4c069f9348e9f06cb52665a977306db1677646
+
+COCOAPODS: 0.39.0

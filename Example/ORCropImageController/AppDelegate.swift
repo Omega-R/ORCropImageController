@@ -1,9 +1,9 @@
 //
 //  AppDelegate.swift
-//  ORCropImageController
+//  ORCropImageExample
 //
-//  Created by Nikita Egoshin on 05/03/2016.
-//  Copyright (c) 2016 Nikita Egoshin. All rights reserved.
+//  Created by Nikita Egoshin on 03.05.16.
+//  Copyright © 2016 Omega-R. All rights reserved.
 //
 
 import UIKit
