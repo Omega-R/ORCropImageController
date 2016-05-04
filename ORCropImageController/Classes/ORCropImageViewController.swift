@@ -10,7 +10,7 @@ import UIKit
 import QuartzCore
 
 
-protocol ORCropImageViewControllerDelegate {
+public protocol ORCropImageViewControllerDelegate {
     func titleForCropVCSubmitButton() -> String
     func titleForCropVCCancelButton() -> String
     func usingButtonsInCropVC() -> ORCropImageViewController.Button
@@ -19,29 +19,29 @@ protocol ORCropImageViewControllerDelegate {
     func cropVCDidFinishCrop(withImage image: UIImage?)
 }
 
-protocol ORCropImageViewControllerDownloadDelegate {
+public protocol ORCropImageViewControllerDownloadDelegate {
     func downloadImage(fromURL url: NSURL, completion: (image: UIImage?, error: NSError?) -> Void);
 }
 
-class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
+public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
 
     //MARK: - Struct
     
-    struct Button : OptionSetType {
-        let rawValue: Int
+    public struct Button : OptionSetType {
+        public let rawValue: Int
         
-        init(rawValue: Int) {
+        public init(rawValue: Int) {
             self.rawValue = rawValue
         }
         
-        static let Submit = Button(rawValue: 1)
-        static let Cancel = Button(rawValue: 2)
+        static public let Submit = Button(rawValue: 1)
+        static public let Cancel = Button(rawValue: 2)
     }
     
     
     //MARK: - Enumerations
     
-    enum CursorType {
+    public enum CursorType {
         case None
         case Circle
         case RoundedRect
@@ -72,35 +72,35 @@ class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     var shadeLayer: CALayer?;
     
     var shouldAddShadeLayer: Bool = true;
-    var srcImage: UIImage!;
-    var destImageMaxSize: CGSize?
+    public var srcImage: UIImage!;
+    public var destImageMaxSize: CGSize?
     
-    var cursorType: CursorType = CursorType.None
-    var delegate: ORCropImageViewControllerDelegate?
-    var downloadDelegate: ORCropImageViewControllerDownloadDelegate? = ORCropImageViewControllerDefaultDownloadDelegate()
+    public var cursorType: CursorType = CursorType.None
+    public var delegate: ORCropImageViewControllerDelegate?
+    public var downloadDelegate: ORCropImageViewControllerDownloadDelegate? = ORCropImageViewControllerDefaultDownloadDelegate()
     
     
     //MARK: - Initializers
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+    override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
-    convenience init(nibName: String?, bundle: NSBundle?, image: UIImage) {
+    convenience public init(nibName: String?, bundle: NSBundle?, image: UIImage) {
         self.init(nibName: nibName, bundle: bundle)
         self.srcImage = image
     }
     
-    convenience init(nibName: String?, bundle: NSBundle?, imageURL url: NSURL) {
+    convenience public init(nibName: String?, bundle: NSBundle?, imageURL url: NSURL) {
         self.init(nibName: nibName, bundle: bundle)
         setupImageFromURL(url)
     }
     
-    convenience init(nibName: String?, bundle: NSBundle?, imageURLPath path: String) {
+    convenience public init(nibName: String?, bundle: NSBundle?, imageURLPath path: String) {
         guard let url = NSURL(string: path) else {
             self.init(nibName: nibName, bundle: bundle)
             
@@ -117,26 +117,26 @@ class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - Lifecycle
     
-    static func defaultViewController() -> ORCropImageViewController {
-        return ORCropImageViewController(nibName: "ORCropImageViewController", bundle: nil)
+    static public func defaultViewController() -> ORCropImageViewController {
+        return ORCropImageViewController(nibName: "ORCropImageViewController", bundle: NSBundle(forClass: ORCropImageViewController.self))
     }
     
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override public func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated);
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override public func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated);
         self.fillUI();
     }
     
-    override func viewDidLayoutSubviews() {
+    override public func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews();
         setupUI()
         fillUI()
@@ -145,7 +145,7 @@ class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - Setup
     
-    func setupImageFromURL(url: NSURL) {
+    public func setupImageFromURL(url: NSURL) {
         guard let dlDelegate = downloadDelegate else {
             onFail(withMessage: "Download delegate is not set!")
             return
@@ -407,11 +407,11 @@ class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - UIScrollViewDelegate
     
-    func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+    public func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
         return ivImage;
     }
     
-    func scrollViewDidZoom(scrollView: UIScrollView) {
+    public func scrollViewDidZoom(scrollView: UIScrollView) {
         self.ivImage.transform = CGAffineTransformMakeScale(scrollView.zoomScale, scrollView.zoomScale);
         self.ivImage.center = CGPoint(x: scrollView.contentSize.width * 0.5, y: scrollView.contentSize.height * 0.5);
         

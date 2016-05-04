@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'E6E964325095FD4CD9CA1CA3'
+               BlueprintIdentifier = '315A54587AC64118DC3E0515'
                BlueprintName = 'ORCropImageController'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'ORCropImageController.framework'>

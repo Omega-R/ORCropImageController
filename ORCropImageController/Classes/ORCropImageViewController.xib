@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ORCropImageViewController" customModule="ORCropImageExample" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ORCropImageViewController" customModule="ORCropImageController" customModuleProvider="target">
             <connections>
                 <outlet property="btnCancel" destination="kzm-Ej-9sN" id="yfi-R6-rcw"/>
                 <outlet property="btnSubmit" destination="7D5-QM-Oiz" id="UyK-vi-Fa8"/>

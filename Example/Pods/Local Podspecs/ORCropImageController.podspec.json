@@ -9,7 +9,8 @@
     "Nikita Egoshin": "nikita.egoshin@omega-r.com"
   },
   "source": {
-    "path": "/ORCropImageController"
+    "git": "https://NikitaEgoshin@bitbucket.org/omegarinc/orcropimagecontroller.git",
+    "tag": "0.1.0"
   },
   "platforms": {
     "ios": "8.0"

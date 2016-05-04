@@ -9,6 +9,6 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  ORCropImageController: fe4c069f9348e9f06cb52665a977306db1677646
+  ORCropImageController: 7bb98c55dcd9ec377d688280d91ff31f57f68559
 
 COCOAPODS: 0.39.0
