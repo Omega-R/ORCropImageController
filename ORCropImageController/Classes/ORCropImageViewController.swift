@@ -52,6 +52,8 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     let kRoundedRectCornerRadius: CGFloat = 3.0
     let kRoundedRectHeightRatio: CGFloat = 0.72
+    let kFrameNormalOffset: CGFloat = 8.0
+    let kButtonsPanelHeight: CGFloat = 52.0
     
     
     //MARK: - Variables
@@ -65,7 +67,9 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet weak var circleFrameView: UIView!
     
+    @IBOutlet weak var lyocCursorViewWidth: NSLayoutConstraint!
     @IBOutlet weak var lyocCursorViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var lyocScrollViewBottomOffset: NSLayoutConstraint!
     
     var croppedImageCallback: ((image: UIImage?) -> Void)?;
     
@@ -129,6 +133,8 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
 
     override public func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated);
+        
+        self.lyocScrollViewBottomOffset.constant = (cursorType == .None) ? 0.0 : kButtonsPanelHeight
     }
     
     override public func viewDidAppear(animated: Bool) {
@@ -197,9 +203,19 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         switch cursorType {
         case .RoundedRect:
-            let frameHeight: CGFloat = self.circleFrameView.frame.size.width * kRoundedRectHeightRatio
+            var frameWidth: CGFloat = 0.0
+            var frameHeight: CGFloat = 0.0
+            
+            if self.view.frame.size.width < self.view.frame.size.height {
+                frameWidth = self.view.frame.size.width - kFrameNormalOffset * 2
+                frameHeight = frameWidth * kRoundedRectHeightRatio
+            } else {
+                frameHeight = self.view.frame.size.height - (kFrameNormalOffset + kButtonsPanelHeight)
+                frameWidth = frameHeight / kRoundedRectHeightRatio
+            }
+            
             self.shadeLayer = roundedRectShadeLayer()
-            self.shadeLayer!.frame = CGRect(origin: CGPointZero, size: CGSize(width: self.circleFrameView.frame.size.width, height: frameHeight));
+            self.shadeLayer!.frame = CGRect(origin: CGPointZero, size: CGSize(width: frameWidth, height: frameHeight));
         case .Circle:
             self.shadeLayer = circleShadeLayer();
             self.shadeLayer!.frame = self.shadeView.bounds;
@@ -214,7 +230,7 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     func prepareScrollView() {
         
         if cursorType != .None {
-            let bottomInset: CGFloat = self.view.frame.size.height - CGRectGetMaxY(self.circleFrameView.frame);
+            let bottomInset: CGFloat = self.view.frame.size.height - CGRectGetMaxY(self.circleFrameView.frame) - kButtonsPanelHeight;
             let rightInset: CGFloat = self.view.frame.size.width - CGRectGetMaxX(self.circleFrameView.frame);
             
             self.scrollView.contentInset = UIEdgeInsets(top: self.circleFrameView.frame.origin.y, left: self.circleFrameView.frame.origin.x, bottom: bottomInset, right: rightInset);
@@ -227,16 +243,34 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         switch cursorType {
         case .RoundedRect:
-            let frameHeight: CGFloat = self.circleFrameView.frame.size.width * kRoundedRectHeightRatio
+            
+            var frameWidth: CGFloat = 0.0
+            var frameHeight: CGFloat = 0.0
+            
+            if self.view.frame.size.width < self.view.frame.size.height {
+                frameWidth = self.view.frame.size.width - kFrameNormalOffset * 2.0
+                frameHeight = frameWidth * kRoundedRectHeightRatio
+            } else {
+                frameHeight = self.view.frame.size.height - (kFrameNormalOffset + kButtonsPanelHeight)
+                frameWidth = frameHeight / kRoundedRectHeightRatio
+            }
            
             self.circleFrameView.layer.cornerRadius = kRoundedRectCornerRadius
-            self.circleFrameView.frame = CGRect(origin: CGPointZero, size: CGSize(width: self.circleFrameView.frame.size.width, height: frameHeight))
+            self.circleFrameView.frame = CGRect(origin: CGPointZero, size: CGSize(width: frameWidth, height: frameHeight))
+            
+            self.lyocCursorViewWidth.constant = frameWidth
+            self.lyocCursorViewHeight.constant = frameHeight
         default:
-            self.circleFrameView.layer.cornerRadius = self.circleFrameView.frame.size.width * 0.5;
-            self.circleFrameView.frame = CGRect(origin: CGPointZero, size: CGSize(width: self.circleFrameView.frame.size.width, height: self.circleFrameView.frame.size.width))
+            var minSideSize = min(self.view.frame.size.width, self.view.frame.size.height - kButtonsPanelHeight)
+            minSideSize -= 16.0
+            
+            self.circleFrameView.layer.cornerRadius = minSideSize * 0.5;
+            self.circleFrameView.frame = CGRect(origin: CGPointZero, size: CGSize(width: minSideSize, height: minSideSize))
+            self.lyocCursorViewWidth.constant = minSideSize
+            self.lyocCursorViewHeight.constant = minSideSize
         }
         
-        self.circleFrameView.center = CGPointMake(self.view.frame.size.width * 0.5, self.view.frame.size.height * 0.5)
+        self.circleFrameView.center = CGPointMake(self.view.frame.size.width * 0.5, (self.view.frame.size.height - kButtonsPanelHeight) * 0.5)
         self.circleFrameView.layer.borderColor = UIColor.whiteColor().CGColor;
         self.circleFrameView.layer.borderWidth = 2.0;
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -11,6 +11,8 @@
                 <outlet property="btnSubmit" destination="7D5-QM-Oiz" id="UyK-vi-Fa8"/>
                 <outlet property="circleFrameView" destination="6EY-Pr-n4K" id="qLd-Pt-sjM"/>
                 <outlet property="lyocCursorViewHeight" destination="yTi-i9-2ck" id="vD1-V9-ISc"/>
+                <outlet property="lyocCursorViewWidth" destination="da7-E5-4RT" id="VaS-9J-aYE"/>
+                <outlet property="lyocScrollViewBottomOffset" destination="OEo-e6-Hkv" id="aFt-76-z9t"/>
                 <outlet property="scrollView" destination="ZUg-ql-5qN" id="A9G-vb-ctl"/>
                 <outlet property="shadeView" destination="aNk-c5-Pgs" id="9u8-PP-y9w"/>
                 <outlet property="view" destination="iN0-l3-epB" id="8qT-TP-9bX"/>
@@ -22,7 +24,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <scrollView autoresizesSubviews="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" alwaysBounceHorizontal="YES" maximumZoomScale="5" translatesAutoresizingMaskIntoConstraints="NO" id="ZUg-ql-5qN">
-                    <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="516"/>
                     <connections>
                         <outlet property="delegate" destination="-1" id="XDD-Ip-OlX"/>
                     </connections>
@@ -31,9 +33,10 @@
                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                     <subviews>
                         <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="6EY-Pr-n4K">
-                            <rect key="frame" x="8" y="132" width="304" height="304"/>
+                            <rect key="frame" x="8" y="106" width="304" height="304"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             <constraints>
+                                <constraint firstAttribute="width" constant="304" id="da7-E5-4RT"/>
                                 <constraint firstAttribute="height" constant="304" id="yTi-i9-2ck"/>
                             </constraints>
                         </view>
@@ -41,9 +44,7 @@
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <constraints>
                         <constraint firstItem="6EY-Pr-n4K" firstAttribute="centerX" secondItem="aNk-c5-Pgs" secondAttribute="centerX" id="25N-Mb-F2V"/>
-                        <constraint firstItem="6EY-Pr-n4K" firstAttribute="leading" secondItem="aNk-c5-Pgs" secondAttribute="leading" constant="8" id="I0X-gC-HOh"/>
-                        <constraint firstItem="6EY-Pr-n4K" firstAttribute="centerY" secondItem="aNk-c5-Pgs" secondAttribute="centerY" id="Sdh-ac-40j"/>
-                        <constraint firstAttribute="trailing" secondItem="6EY-Pr-n4K" secondAttribute="trailing" constant="8" id="k4O-6e-v3r"/>
+                        <constraint firstItem="6EY-Pr-n4K" firstAttribute="centerY" secondItem="aNk-c5-Pgs" secondAttribute="centerY" constant="-26" id="Sdh-ac-40j"/>
                     </constraints>
                 </view>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kzm-Ej-9sN">
@@ -73,14 +74,14 @@
                     </connections>
                 </button>
             </subviews>
-            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="ZUg-ql-5qN" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="23h-RT-pjQ"/>
                 <constraint firstAttribute="trailing" secondItem="aNk-c5-Pgs" secondAttribute="trailing" id="BVu-3G-Q4h"/>
                 <constraint firstAttribute="trailing" secondItem="ZUg-ql-5qN" secondAttribute="trailing" id="Eh0-wW-xEx"/>
                 <constraint firstItem="aNk-c5-Pgs" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="GN2-FF-l77"/>
                 <constraint firstAttribute="trailing" secondItem="7D5-QM-Oiz" secondAttribute="trailing" constant="8" id="KGL-Db-Ntt"/>
-                <constraint firstAttribute="bottom" secondItem="ZUg-ql-5qN" secondAttribute="bottom" id="OEo-e6-Hkv"/>
+                <constraint firstAttribute="bottom" secondItem="ZUg-ql-5qN" secondAttribute="bottom" constant="52" id="OEo-e6-Hkv"/>
                 <constraint firstAttribute="bottom" secondItem="aNk-c5-Pgs" secondAttribute="bottom" id="Wjx-8q-S2W"/>
                 <constraint firstAttribute="bottom" secondItem="kzm-Ej-9sN" secondAttribute="bottom" constant="8" id="a1p-8c-Nhm"/>
                 <constraint firstItem="aNk-c5-Pgs" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="eUg-6W-YvP"/>
