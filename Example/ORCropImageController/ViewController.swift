@@ -49,14 +49,28 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func pickFromURL() {
-        guard let imageURL = NSURL(string: kImageUrlString) else {
-            showErrorAlert("Loading error", message: "Failed to load image.\nReason: Invalid URL")
-            return
+        showActionChoiseMenu(imageURL: kImageUrlString)
+    }
+    
+    func showPreview(image: UIImage? = nil, imageURL: String? = nil) {
+        showCropController(.None, image: image, imageURL: imageURL)
+    }
+    
+    func cropImage(cursorType: ORCropImageViewController.CursorType, image: UIImage? = nil, imageURL: String? = nil) {
+        showCropController(cursorType, image: image, imageURL: imageURL)
+    }
+    
+    func showCropController(cursorType: ORCropImageViewController.CursorType, image: UIImage? = nil, imageURL: String? = nil) {
+        let vc = ORCropImageViewController.defaultViewController()
+        vc.cursorType = cursorType
+        vc.delegate = self
+        
+        if let img = image {
+            vc.srcImage = img
+        } else if let urlStr = imageURL, let url = NSURL(string: urlStr) {
+            vc.setupImageFromURL(url)
         }
         
-        let vc = ORCropImageViewController.defaultViewController()
-        vc.delegate = self
-        vc.setupImageFromURL(imageURL)
         self.presentViewController(vc, animated: true, completion: nil)
     }
     
@@ -79,6 +93,29 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         alertVC.addAction(okAction)
         
         self.presentViewController(alertVC, animated: true, completion: nil)
+    }
+    
+    func showActionChoiseMenu(image: UIImage? = nil, imageURL: String? = nil) {
+        let actionCropCircle = UIAlertAction(title: "Crop To Circle", style: UIAlertActionStyle.Default) { (action) in
+            self.cropImage(.Circle, image: image, imageURL: imageURL)
+        }
+        
+        let actionCropRoundedRect = UIAlertAction(title: "Crop To Rounded Rectangle", style: UIAlertActionStyle.Default) { (action) in
+            self.cropImage(.RoundedRect, image: image, imageURL: imageURL)
+        }
+        
+        let actionPreview = UIAlertAction(title: "Preview", style: UIAlertActionStyle.Default) { (action) in
+            self.showPreview(image, imageURL: imageURL)
+        }
+        
+        let actionCancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
+        
+        let actionVC = UIAlertController(title: "Choose Action", message: nil, preferredStyle: .ActionSheet)
+        actionVC.addAction(actionPreview)
+        actionVC.addAction(actionCropCircle)
+        actionVC.addAction(actionCropRoundedRect)
+        actionVC.addAction(actionCancel)
+        self.presentViewController(actionVC, animated: true, completion: nil)
     }
     
     
@@ -113,11 +150,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         picker.dismissViewControllerAnimated(true, completion: { [weak self] () -> Void in
             if let strongSelf = self {
-                let vc = ORCropImageViewController.defaultViewController()
-                vc.delegate = self
-                vc.cursorType = .Circle
-                vc.srcImage = pickedImage
-                strongSelf.presentViewController(vc, animated: true, completion: nil)
+                strongSelf.showActionChoiseMenu(pickedImage)
             }
         });
     }
