@@ -379,13 +379,13 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         UIGraphicsBeginImageContext(self.srcImage.size);
         
-        CGContextTranslateCTM(UIGraphicsGetCurrentContext(), 0.5 * self.srcImage.size.width, 0.5 * self.srcImage.size.height);
+        CGContextTranslateCTM(UIGraphicsGetCurrentContext()!, 0.5 * self.srcImage.size.width, 0.5 * self.srcImage.size.height);
         self.srcImage.drawInRect(CGRect(origin: CGPointMake(-self.srcImage.size.width * 0.5, -self.srcImage.size.height * 0.5), size: self.srcImage.size));
         
-        let normalImage: UIImage = UIGraphicsGetImageFromCurrentImageContext();
+        let normalImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!;
         UIGraphicsEndImageContext();
         
-        let cgImage: CGImageRef = CGImageCreateWithImageInRect(normalImage.CGImage, cropRect)!;
+        let cgImage: CGImageRef = CGImageCreateWithImageInRect(normalImage.CGImage!, cropRect)!;
         let croppedImage: UIImage = UIImage(CGImage: cgImage);
         var requiredScale: CGFloat = 1.0
         
@@ -410,7 +410,7 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         //CGContextTranslateCTM(UIGraphicsGetCurrentContext(), 0.5 * scaledImageRect.size.width, 0.5 * scaledImageRect.size.height);
         croppedImage.drawInRect(scaledImageRect);
         
-        let resultImage: UIImage = UIGraphicsGetImageFromCurrentImageContext();
+        let resultImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!;
         UIGraphicsEndImageContext();
         
         let resultImageSize = resultImage.size
