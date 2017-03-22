@@ -15,19 +15,19 @@ public protocol ORCropImageViewControllerDelegate {
     func titleForCropVCCancelButton() -> String
     func usingButtonsInCropVC() -> ORCropImageViewController.Button
     
-    func cropVCDidFailToPrepareImage(error: NSError?)
+    func cropVCDidFailToPrepareImage(_ error: NSError?)
     func cropVCDidFinishCrop(withImage image: UIImage?)
 }
 
 public protocol ORCropImageViewControllerDownloadDelegate {
-    func downloadImage(fromURL url: NSURL, completion: (image: UIImage?, error: NSError?) -> Void);
+    func downloadImage(fromURL url: URL, completion: @escaping (_ image: UIImage?, _ error: NSError?) -> Void);
 }
 
-public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
+open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
 
     //MARK: - Struct
     
-    public struct Button : OptionSetType {
+    public struct Button : OptionSet {
         public let rawValue: Int
         
         public init(rawValue: Int) {
@@ -42,9 +42,15 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     //MARK: - Enumerations
     
     public enum CursorType {
-        case None
-        case Circle
-        case RoundedRect
+        case none
+        case circle
+        case roundedRect
+    }
+    
+    public enum InitialZoom {
+        case min
+        case normal
+        case custom(scale: CGFloat)
     }
     
     
@@ -71,17 +77,21 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var lyocCursorViewHeight: NSLayoutConstraint!
     @IBOutlet weak var lyocScrollViewBottomOffset: NSLayoutConstraint!
     
-    var croppedImageCallback: ((image: UIImage?) -> Void)?;
+    var croppedImageCallback: ((_ image: UIImage?) -> Void)?;
     
     var shadeLayer: CALayer?;
     
     var shouldAddShadeLayer: Bool = true;
-    public var srcImage: UIImage!;
-    public var destImageMaxSize: CGSize?
     
-    public var cursorType: CursorType = CursorType.None
-    public var delegate: ORCropImageViewControllerDelegate?
-    public var downloadDelegate: ORCropImageViewControllerDownloadDelegate? = ORCropImageViewControllerDefaultDownloadDelegate()
+    open var initialZoom: InitialZoom = .normal
+    open var isPreview: Bool = false
+    
+    open var srcImage: UIImage!;
+    open var destImageMaxSize: CGSize?
+    
+    open var cursorType: CursorType = CursorType.none
+    open var delegate: ORCropImageViewControllerDelegate?
+    open var downloadDelegate: ORCropImageViewControllerDownloadDelegate? = ORCropImageViewControllerDefaultDownloadDelegate()
     
     
     //MARK: - Initializers
@@ -90,22 +100,22 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         super.init(coder: aDecoder)
     }
     
-    override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+    override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
-    convenience public init(nibName: String?, bundle: NSBundle?, image: UIImage) {
+    convenience public init(nibName: String?, bundle: Bundle?, image: UIImage) {
         self.init(nibName: nibName, bundle: bundle)
         self.srcImage = image
     }
     
-    convenience public init(nibName: String?, bundle: NSBundle?, imageURL url: NSURL) {
+    convenience public init(nibName: String?, bundle: Bundle?, imageURL url: URL) {
         self.init(nibName: nibName, bundle: bundle)
         setupImageFromURL(url)
     }
     
-    convenience public init(nibName: String?, bundle: NSBundle?, imageURLPath path: String) {
-        guard let url = NSURL(string: path) else {
+    convenience public init(nibName: String?, bundle: Bundle?, imageURLPath path: String) {
+        guard let url = URL(string: path) else {
             self.init(nibName: nibName, bundle: bundle)
             
             ORCropImageViewController.log("Failed to initialize. Reason: Invalid URL string")
@@ -121,28 +131,28 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - Lifecycle
     
-    static public func defaultViewController() -> ORCropImageViewController {
-        return ORCropImageViewController(nibName: "ORCropImageViewController", bundle: NSBundle(forClass: ORCropImageViewController.self))
+    static open func defaultViewController() -> ORCropImageViewController {
+        return ORCropImageViewController(nibName: "ORCropImageViewController", bundle: Bundle(for: ORCropImageViewController.self))
     }
     
-    override public func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
     }
 
-    override public func viewWillAppear(animated: Bool) {
+    override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         
-        self.lyocScrollViewBottomOffset.constant = (cursorType == .None) ? 0.0 : kButtonsPanelHeight
+        self.lyocScrollViewBottomOffset.constant = (cursorType == .none) ? 0.0 : kButtonsPanelHeight
     }
     
-    override public func viewDidAppear(animated: Bool) {
+    override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated);
         self.fillUI();
     }
     
-    override public func viewDidLayoutSubviews() {
+    override open func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews();
         setupUI()
         fillUI()
@@ -151,7 +161,7 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - Setup
     
-    public func setupImageFromURL(url: NSURL) {
+    open func setupImageFromURL(_ url: URL) {
         guard let dlDelegate = downloadDelegate else {
             onFail(withMessage: "Download delegate is not set!")
             return
@@ -178,31 +188,31 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     func prepareBottomBarButtons() {
         let usingButtons = delegate?.usingButtonsInCropVC() ?? [.Submit, .Cancel]
         
-        if usingButtons.contains(.Submit) && srcImage != nil && cursorType != .None {
+        if usingButtons.contains(.Submit) && srcImage != nil && !isPreview {
             let title = delegate?.titleForCropVCSubmitButton() ?? NSLocalizedString("Save", comment: "")
-            btnSubmit.setTitle(title, forState: UIControlState.Normal)
-            btnSubmit.hidden = false
+            btnSubmit.setTitle(title, for: UIControlState())
+            btnSubmit.isHidden = false
         } else {
-            btnSubmit.hidden = true
+            btnSubmit.isHidden = true
         }
         
         if usingButtons.contains(.Cancel) {
             let title = delegate?.titleForCropVCCancelButton() ?? NSLocalizedString("Cancel", comment: "")
-            btnCancel.setTitle(title, forState: UIControlState.Normal)
-            btnCancel.hidden = false
+            btnCancel.setTitle(title, for: UIControlState())
+            btnCancel.isHidden = false
         } else {
-            btnCancel.hidden = true
+            btnCancel.isHidden = true
         }
     }
     
     func prepareShadeLayer() {
         self.shadeLayer?.removeFromSuperlayer();
         
-        self.circleFrameView.hidden = (cursorType == CursorType.None)
-        self.shadeView.hidden = self.circleFrameView.hidden
+        self.circleFrameView.isHidden = (cursorType == CursorType.none)
+        self.shadeView.isHidden = self.circleFrameView.isHidden
         
         switch cursorType {
-        case .RoundedRect:
+        case .roundedRect:
             var frameWidth: CGFloat = 0.0
             var frameHeight: CGFloat = 0.0
             
@@ -215,8 +225,8 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
             }
             
             self.shadeLayer = roundedRectShadeLayer()
-            self.shadeLayer!.frame = CGRect(origin: CGPointZero, size: CGSize(width: frameWidth, height: frameHeight));
-        case .Circle:
+            self.shadeLayer!.frame = CGRect(origin: CGPoint.zero, size: CGSize(width: frameWidth, height: frameHeight));
+        case .circle:
             self.shadeLayer = circleShadeLayer();
             self.shadeLayer!.frame = self.shadeView.bounds;
         default: break
@@ -229,20 +239,20 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     func prepareScrollView() {
         
-        if cursorType != .None {
-            let bottomInset: CGFloat = self.view.frame.size.height - CGRectGetMaxY(self.circleFrameView.frame) - kButtonsPanelHeight;
-            let rightInset: CGFloat = self.view.frame.size.width - CGRectGetMaxX(self.circleFrameView.frame);
+        if cursorType != .none {
+            let bottomInset: CGFloat = self.view.frame.size.height - self.circleFrameView.frame.maxY - kButtonsPanelHeight;
+            let rightInset: CGFloat = self.view.frame.size.width - self.circleFrameView.frame.maxX;
             
             self.scrollView.contentInset = UIEdgeInsets(top: self.circleFrameView.frame.origin.y, left: self.circleFrameView.frame.origin.x, bottom: bottomInset, right: rightInset);
         } else {
-            self.scrollView.contentInset = UIEdgeInsetsZero
+            self.scrollView.contentInset = UIEdgeInsets.zero
         }
     }
     
     func prepareCursorView() {
         
         switch cursorType {
-        case .RoundedRect:
+        case .roundedRect:
             
             var frameWidth: CGFloat = 0.0
             var frameHeight: CGFloat = 0.0
@@ -256,7 +266,7 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
             }
            
             self.circleFrameView.layer.cornerRadius = kRoundedRectCornerRadius
-            self.circleFrameView.frame = CGRect(origin: CGPointZero, size: CGSize(width: frameWidth, height: frameHeight))
+            self.circleFrameView.frame = CGRect(origin: CGPoint.zero, size: CGSize(width: frameWidth, height: frameHeight))
             
             self.lyocCursorViewWidth.constant = frameWidth
             self.lyocCursorViewHeight.constant = frameHeight
@@ -265,13 +275,13 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
             minSideSize -= 16.0
             
             self.circleFrameView.layer.cornerRadius = minSideSize * 0.5;
-            self.circleFrameView.frame = CGRect(origin: CGPointZero, size: CGSize(width: minSideSize, height: minSideSize))
+            self.circleFrameView.frame = CGRect(origin: CGPoint.zero, size: CGSize(width: minSideSize, height: minSideSize))
             self.lyocCursorViewWidth.constant = minSideSize
             self.lyocCursorViewHeight.constant = minSideSize
         }
         
-        self.circleFrameView.center = CGPointMake(self.view.frame.size.width * 0.5, (self.view.frame.size.height - kButtonsPanelHeight) * 0.5)
-        self.circleFrameView.layer.borderColor = UIColor.whiteColor().CGColor;
+        self.circleFrameView.center = CGPoint(x: self.view.frame.size.width * 0.5, y: (self.view.frame.size.height - kButtonsPanelHeight) * 0.5)
+        self.circleFrameView.layer.borderColor = UIColor.white.cgColor;
         self.circleFrameView.layer.borderWidth = 2.0;
     }
     
@@ -285,7 +295,7 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         var imageScale: CGFloat = 1.0
         var minimalScale: CGFloat = 1.0
         
-        if (cursorType != .None) {
+        if (cursorType != .none) {
             let scaleX = circleFrameView.frame.size.width / srcImage.size.width
             let scaleY = circleFrameView.frame.size.height / srcImage.size.height
             
@@ -308,13 +318,21 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         }
         
         let ivImage: UIImageView = UIImageView(image: srcImage);
-        ivImage.frame = CGRect(origin: CGPointZero, size: scrollContentSize);
+        ivImage.frame = CGRect(origin: CGPoint.zero, size: scrollContentSize);
         ivImage.center = CGPoint(x: scrollView.contentSize.width * 0.5, y: scrollView.contentSize.height * 0.5);
         
         self.scrollView.addSubview(ivImage);
         self.ivImage = ivImage;
         
-        self.scrollView.zoomScale = imageScale;
+        switch initialZoom {
+        case .min:
+            self.scrollView.zoomScale = minimalScale;
+        case .normal:
+            self.scrollView.zoomScale = imageScale;
+        case .custom(scale: let scale):
+            self.scrollView.zoomScale = scale >= minimalScale ? scale : minimalScale
+        }
+        
     }
     
     //MARK: - Internal operations
@@ -329,14 +347,14 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         let path: UIBezierPath = UIBezierPath(rect: maskFrame);
         let circlePath: UIBezierPath = UIBezierPath(roundedRect:circleFrame, cornerRadius:radius);
         
-        path.appendPath(circlePath);
+        path.append(circlePath);
         
         path.usesEvenOddFillRule = true;
         
         let fillLayer: CAShapeLayer = CAShapeLayer();
-        fillLayer.path = path.CGPath;
+        fillLayer.path = path.cgPath;
         fillLayer.fillRule = kCAFillRuleEvenOdd;
-        fillLayer.fillColor = UIColor(white: 0.0, alpha: 0.75).CGColor;
+        fillLayer.fillColor = UIColor(white: 0.0, alpha: 0.75).cgColor;
         fillLayer.opacity = 1.0;
 
         return fillLayer;
@@ -353,14 +371,14 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         let path: UIBezierPath = UIBezierPath(rect: maskFrame);
         let circlePath: UIBezierPath = UIBezierPath(roundedRect:rectFrame, cornerRadius:kRoundedRectCornerRadius);
         
-        path.appendPath(circlePath);
+        path.append(circlePath);
         
         path.usesEvenOddFillRule = true;
         
         let fillLayer: CAShapeLayer = CAShapeLayer();
-        fillLayer.path = path.CGPath;
+        fillLayer.path = path.cgPath;
         fillLayer.fillRule = kCAFillRuleEvenOdd;
-        fillLayer.fillColor = UIColor(white: 0.0, alpha: 0.75).CGColor;
+        fillLayer.fillColor = UIColor(white: 0.0, alpha: 0.75).cgColor;
         fillLayer.opacity = 1.0;
         
         return fillLayer;
@@ -379,14 +397,14 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         UIGraphicsBeginImageContext(self.srcImage.size);
         
-        CGContextTranslateCTM(UIGraphicsGetCurrentContext()!, 0.5 * self.srcImage.size.width, 0.5 * self.srcImage.size.height);
-        self.srcImage.drawInRect(CGRect(origin: CGPointMake(-self.srcImage.size.width * 0.5, -self.srcImage.size.height * 0.5), size: self.srcImage.size));
+        UIGraphicsGetCurrentContext()!.translateBy(x: 0.5 * self.srcImage.size.width, y: 0.5 * self.srcImage.size.height);
+        self.srcImage.draw(in: CGRect(origin: CGPoint(x: -self.srcImage.size.width * 0.5, y: -self.srcImage.size.height * 0.5), size: self.srcImage.size));
         
         let normalImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!;
         UIGraphicsEndImageContext();
         
-        let cgImage: CGImageRef = CGImageCreateWithImageInRect(normalImage.CGImage!, cropRect)!;
-        let croppedImage: UIImage = UIImage(CGImage: cgImage);
+        let cgImage: CGImage = .none != cursorType ? normalImage.cgImage!.cropping(to: cropRect)! : normalImage.cgImage!;
+        let croppedImage: UIImage = UIImage(cgImage: cgImage);
         var requiredScale: CGFloat = 1.0
         
         if let maxSize = self.destImageMaxSize {
@@ -397,18 +415,16 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
             }
         }
         
-        var scaledImageRect = CGRect(origin: CGPointZero, size: croppedImage.size)
+        var scaledImageRect = CGRect(origin: CGPoint.zero, size: croppedImage.size)
         
         if requiredScale < 1.0 {
             let scaledImageWidth = croppedImage.size.width * requiredScale
             let scaledImageHeight = croppedImage.size.height * requiredScale
-            scaledImageRect = CGRect(origin: CGPointZero, size: CGSize(width: scaledImageWidth, height: scaledImageHeight))
+            scaledImageRect = CGRect(origin: CGPoint.zero, size: CGSize(width: scaledImageWidth, height: scaledImageHeight))
         }
         
         UIGraphicsBeginImageContext(scaledImageRect.size);
-
-        //CGContextTranslateCTM(UIGraphicsGetCurrentContext(), 0.5 * scaledImageRect.size.width, 0.5 * scaledImageRect.size.height);
-        croppedImage.drawInRect(scaledImageRect);
+        croppedImage.draw(in: scaledImageRect);
         
         let resultImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!;
         UIGraphicsEndImageContext();
@@ -422,34 +438,34 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - Actions
     
-    @IBAction func onChooseButtonTouchUp(sender: AnyObject) {
+    @IBAction func onChooseButtonTouchUp(_ sender: AnyObject) {
         
         if croppedImageCallback != nil {
-            croppedImageCallback!(image: croppedImage());
+            croppedImageCallback!(croppedImage());
         }
         
         delegate?.cropVCDidFinishCrop(withImage: croppedImage())
         
-        self.dismissViewControllerAnimated(true, completion: nil);
+        self.dismiss(animated: true, completion: nil);
     }
     
-    @IBAction func onCancelButtonTouchUp(sender: AnyObject) {
+    @IBAction func onCancelButtonTouchUp(_ sender: AnyObject) {
     
-        self.dismissViewControllerAnimated(true, completion: nil);
+        self.dismiss(animated: true, completion: nil);
     }
     
     
     //MARK: - UIScrollViewDelegate
     
-    public func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+    open func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return ivImage;
     }
     
-    public func scrollViewDidZoom(scrollView: UIScrollView) {
-        self.ivImage.transform = CGAffineTransformMakeScale(scrollView.zoomScale, scrollView.zoomScale);
+    open func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        self.ivImage.transform = CGAffineTransform(scaleX: scrollView.zoomScale, y: scrollView.zoomScale);
         self.ivImage.center = CGPoint(x: scrollView.contentSize.width * 0.5, y: scrollView.contentSize.height * 0.5);
         
-        if cursorType == .None {
+        if cursorType == .none {
             let verticalInset = (self.view.frame.size.height - self.ivImage.frame.size.height) * 0.5
             
             if verticalInset >= 0.0 {
@@ -461,12 +477,12 @@ public class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - Helpers
     
-    static func log(msg: String) {
+    static func log(_ msg: String) {
         print("[Crop Image VC]: \(msg)")
     }
     
     func onFail(withMessage msg: String) {
-        let userInfo: [NSObject : AnyObject] = [kCFErrorLocalizedDescriptionKey : msg]
+        let userInfo: [AnyHashable: Any] = [kCFErrorLocalizedDescriptionKey as AnyHashable : msg]
         let error = NSError(domain: "url_error", code: -1, userInfo: userInfo)
         delegate?.cropVCDidFailToPrepareImage(error)
     }

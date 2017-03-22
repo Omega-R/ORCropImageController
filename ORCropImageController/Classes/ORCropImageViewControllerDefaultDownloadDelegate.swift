@@ -9,21 +9,21 @@
 import UIKit
 
 class ORCropImageViewControllerDefaultDownloadDelegate: NSObject, ORCropImageViewControllerDownloadDelegate {
-    
-    func downloadImage(fromURL url: NSURL, completion: (image: UIImage?, error: NSError?) -> Void) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
-            guard let data = NSData(contentsOfURL: url) else {
-                completion(image: nil, error: nil)
+
+    public func downloadImage(fromURL url: URL, completion: @escaping (UIImage?, NSError?) -> Void) {
+        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.background).async {
+            guard let data = try? Data(contentsOf: url) else {
+                completion(nil, nil)
                 return
             }
             
             guard let image = UIImage(data: data) else {
-                completion(image: nil, error: nil)
+                completion(nil, nil)
                 return
             }
             
-            dispatch_async(dispatch_get_main_queue(), {
-                completion(image: image, error: nil)
+            DispatchQueue.main.async(execute: {
+                completion(image, nil)
             })
         }
     }

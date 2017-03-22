@@ -20,6 +20,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     //MARK: - Variables
     
     @IBOutlet weak var ivResult: UIImageView!
+    @IBOutlet weak var zoomLevelLabel: UILabel!
+    @IBOutlet weak var zoomLevelSlider: UISlider!
     
     
     //MARK: - Lifecycle
@@ -45,110 +47,129 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     //MARK: - Internal operations
     
     func pickFromPhotoLibrary() {
-        showPicker(UIImagePickerControllerSourceType.PhotoLibrary)
+        showPicker(UIImagePickerControllerSourceType.photoLibrary)
     }
     
     func pickFromURL() {
         showActionChoiseMenu(imageURL: kImageUrlString)
     }
     
-    func showPreview(image: UIImage? = nil, imageURL: String? = nil) {
-        showCropController(.None, image: image, imageURL: imageURL)
+    func showPreview(_ image: UIImage? = nil, imageURL: String? = nil) {
+        let zoomLevel = zoomLevelSlider.value > 0.0
+            ? ORCropImageViewController.InitialZoom.custom(scale: CGFloat(zoomLevelSlider.value))
+            : ORCropImageViewController.InitialZoom.min
+        
+        showCropController(.none, image: image, imageURL: imageURL, isPreview: true, zoomLevel: zoomLevel)
     }
     
-    func cropImage(cursorType: ORCropImageViewController.CursorType, image: UIImage? = nil, imageURL: String? = nil) {
-        showCropController(cursorType, image: image, imageURL: imageURL)
+    func cropImage(_ cursorType: ORCropImageViewController.CursorType, image: UIImage? = nil, imageURL: String? = nil) {
+        let zoomLevel = zoomLevelSlider.value > 0.0
+            ? ORCropImageViewController.InitialZoom.custom(scale: CGFloat(zoomLevelSlider.value))
+            : ORCropImageViewController.InitialZoom.min
+        
+        showCropController(cursorType, image: image, imageURL: imageURL, zoomLevel: zoomLevel)
     }
     
-    func showCropController(cursorType: ORCropImageViewController.CursorType, image: UIImage? = nil, imageURL: String? = nil) {
+    func showCropController(_ cursorType: ORCropImageViewController.CursorType, image: UIImage? = nil, imageURL: String? = nil, isPreview: Bool = false, zoomLevel: ORCropImageViewController.InitialZoom = .normal) {
         let vc = ORCropImageViewController.defaultViewController()
         vc.cursorType = cursorType
         vc.delegate = self
+        vc.initialZoom = zoomLevel
+        vc.isPreview = isPreview
         
         if let img = image {
             vc.srcImage = img
-        } else if let urlStr = imageURL, let url = NSURL(string: urlStr) {
+        } else if let urlStr = imageURL, let url = URL(string: urlStr) {
             vc.setupImageFromURL(url)
         }
         
-        self.presentViewController(vc, animated: true, completion: nil)
+        self.present(vc, animated: true, completion: nil)
     }
     
-    func showPicker(sourceType: UIImagePickerControllerSourceType) {
+    func showPicker(_ sourceType: UIImagePickerControllerSourceType) {
         
         let photoPicker: UIImagePickerController = UIImagePickerController();
         photoPicker.sourceType = sourceType;
         photoPicker.mediaTypes = [kUTTypeImage as String];
         photoPicker.delegate = self;
-        photoPicker.navigationBar.translucent = false;
+        photoPicker.navigationBar.isTranslucent = false;
         
-        dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            self.presentViewController(photoPicker, animated: true, completion: nil);
+        DispatchQueue.main.async { () -> Void in
+            self.present(photoPicker, animated: true, completion: nil);
         };
     }
     
-    func showErrorAlert(title: String?, message: String?) {
-        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Cancel, handler: nil)
-        let alertVC = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
+    func showErrorAlert(_ title: String?, message: String?) {
+        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.cancel, handler: nil)
+        let alertVC = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
         alertVC.addAction(okAction)
         
-        self.presentViewController(alertVC, animated: true, completion: nil)
+        self.present(alertVC, animated: true, completion: nil)
     }
     
-    func showActionChoiseMenu(image: UIImage? = nil, imageURL: String? = nil) {
-        let actionCropCircle = UIAlertAction(title: "Crop To Circle", style: UIAlertActionStyle.Default) { (action) in
-            self.cropImage(.Circle, image: image, imageURL: imageURL)
+    func showActionChoiseMenu(_ image: UIImage? = nil, imageURL: String? = nil) {
+        let actionCropCircle = UIAlertAction(title: "Crop To Circle", style: UIAlertActionStyle.default) { (action) in
+            self.cropImage(.circle, image: image, imageURL: imageURL)
         }
         
-        let actionCropRoundedRect = UIAlertAction(title: "Crop To Rounded Rectangle", style: UIAlertActionStyle.Default) { (action) in
-            self.cropImage(.RoundedRect, image: image, imageURL: imageURL)
+        let actionCropRoundedRect = UIAlertAction(title: "Crop To Rounded Rectangle", style: UIAlertActionStyle.default) { (action) in
+            self.cropImage(.roundedRect, image: image, imageURL: imageURL)
         }
         
-        let actionPreview = UIAlertAction(title: "Preview", style: UIAlertActionStyle.Default) { (action) in
+        let actionPreviewAndResize = UIAlertAction(title: "Preview & Resize", style: UIAlertActionStyle.default) { (action) in
+            self.cropImage(.none, image: image, imageURL: imageURL)
+        }
+        
+        let actionPreview = UIAlertAction(title: "Preview", style: UIAlertActionStyle.default) { (action) in
             self.showPreview(image, imageURL: imageURL)
         }
         
-        let actionCancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
+        let actionCancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil)
         
-        let actionVC = UIAlertController(title: "Choose Action", message: nil, preferredStyle: .ActionSheet)
+        let actionVC = UIAlertController(title: "Choose Action", message: nil, preferredStyle: .actionSheet)
         actionVC.addAction(actionPreview)
+        actionVC.addAction(actionPreviewAndResize)
         actionVC.addAction(actionCropCircle)
         actionVC.addAction(actionCropRoundedRect)
         actionVC.addAction(actionCancel)
-        self.presentViewController(actionVC, animated: true, completion: nil)
+        self.present(actionVC, animated: true, completion: nil)
     }
     
     
     //MARK: - Actions
 
-    @IBAction func onButtonPickImageDidPress(sender: UIButton) {
-        let photoLibraryAction = UIAlertAction(title: "Photo Library", style: UIAlertActionStyle.Default) { [unowned self] (act) in
+    @IBAction func onButtonPickImageDidPress(_ sender: UIButton) {
+        let photoLibraryAction = UIAlertAction(title: "Photo Library", style: UIAlertActionStyle.default) { [unowned self] (act) in
             self.pickFromPhotoLibrary()
         }
         
-        let pickFromURLAction = UIAlertAction(title: "From URL", style: UIAlertActionStyle.Default) { [unowned self] (act) in
+        let pickFromURLAction = UIAlertAction(title: "From URL", style: UIAlertActionStyle.default) { [unowned self] (act) in
             self.pickFromURL()
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil)
         
-        let alertVC = UIAlertController(title: "", message: "Select image source", preferredStyle: UIAlertControllerStyle.ActionSheet)
+        let alertVC = UIAlertController(title: "", message: "Select image source", preferredStyle: UIAlertControllerStyle.actionSheet)
         
         alertVC.addAction(photoLibraryAction)
         alertVC.addAction(pickFromURLAction)
         alertVC.addAction(cancelAction)
         
-        self.presentViewController(alertVC, animated: true, completion: nil)
+        self.present(alertVC, animated: true, completion: nil)
+    }
+    
+    @IBAction func onPreferedZoomSliderValueChanged(_ sender: UISlider) {
+        zoomLevelLabel.text = sender.value > 0.0 ? "x\(sender.value)" : "MIN"
     }
     
     
     //MARK: - UIImagePickerControllerDelegate
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let pickedImage = (info[UIImagePickerControllerEditedImage] ?? info[UIImagePickerControllerOriginalImage]) as? UIImage
         
-        picker.dismissViewControllerAnimated(true, completion: { [weak self] () -> Void in
+        picker.dismiss(animated: true, completion: { [weak self] () -> Void in
             if let strongSelf = self {
                 strongSelf.showActionChoiseMenu(pickedImage)
             }
@@ -162,7 +183,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         ivResult.image = image
     }
     
-    func cropVCDidFailToPrepareImage(error: NSError?) {
+    func cropVCDidFailToPrepareImage(_ error: NSError?) {
         if let err = error {
             showErrorAlert(nil, message: err.localizedDescription)
         }
