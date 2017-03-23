@@ -75,7 +75,12 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     @IBOutlet weak var lyocCursorViewWidth: NSLayoutConstraint!
     @IBOutlet weak var lyocCursorViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var lyocScrollViewTopOffset: NSLayoutConstraint!
     @IBOutlet weak var lyocScrollViewBottomOffset: NSLayoutConstraint!
+    
+    open override var preferredStatusBarStyle: UIStatusBarStyle {
+        return UIStatusBarStyle.lightContent
+    }
     
     var croppedImageCallback: ((_ image: UIImage?) -> Void)?;
     
@@ -85,6 +90,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     open var initialZoom: InitialZoom = .normal
     open var isPreview: Bool = false
+    open var canShowUnderBottomPanel: Bool = true
     
     open var srcImage: UIImage!;
     open var destImageMaxSize: CGSize?
@@ -144,7 +150,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         
-        self.lyocScrollViewBottomOffset.constant = (cursorType == .none) ? 0.0 : kButtonsPanelHeight
+        self.lyocScrollViewBottomOffset.constant = canShowUnderBottomPanel ? 0.0 : kButtonsPanelHeight
     }
     
     override open func viewDidAppear(_ animated: Bool) {
@@ -319,7 +325,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         let ivImage: UIImageView = UIImageView(image: srcImage);
         ivImage.frame = CGRect(origin: CGPoint.zero, size: scrollContentSize);
-        ivImage.center = CGPoint(x: scrollView.contentSize.width * 0.5, y: scrollView.contentSize.height * 0.5);
+        putImageInCenter()
         
         self.scrollView.addSubview(ivImage);
         self.ivImage = ivImage;
@@ -435,6 +441,10 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         return croppedImage;
     }
     
+    func putImageInCenter() {
+        self.ivImage?.center = CGPoint(x: scrollView.contentSize.width * 0.5, y: scrollView.contentSize.height * 0.5 - lyocScrollViewTopOffset.constant);
+    }
+    
     
     //MARK: - Actions
     
@@ -463,7 +473,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     open func scrollViewDidZoom(_ scrollView: UIScrollView) {
         self.ivImage.transform = CGAffineTransform(scaleX: scrollView.zoomScale, y: scrollView.zoomScale);
-        self.ivImage.center = CGPoint(x: scrollView.contentSize.width * 0.5, y: scrollView.contentSize.height * 0.5);
+        putImageInCenter()
         
         if cursorType == .none {
             let verticalInset = (self.view.frame.size.height - self.ivImage.frame.size.height) * 0.5
