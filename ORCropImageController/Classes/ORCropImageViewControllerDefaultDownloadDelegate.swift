@@ -11,7 +11,7 @@ import UIKit
 class ORCropImageViewControllerDefaultDownloadDelegate: NSObject, ORCropImageViewControllerDownloadDelegate {
 
     public func downloadImage(fromURL url: URL, completion: @escaping (UIImage?, NSError?) -> Void) {
-        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.background).async {
+        DispatchQueue.global(qos: .background).async {
             guard let data = try? Data(contentsOf: url) else {
                 completion(nil, nil)
                 return

@@ -137,7 +137,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - Lifecycle
     
-    static open func defaultViewController() -> ORCropImageViewController {
+    static public func defaultViewController() -> ORCropImageViewController {
         return ORCropImageViewController(nibName: "ORCropImageViewController", bundle: Bundle(for: ORCropImageViewController.self))
     }
     
@@ -196,7 +196,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         if usingButtons.contains(.Submit) && srcImage != nil && !isPreview {
             let title = delegate?.titleForCropVCSubmitButton() ?? NSLocalizedString("Save", comment: "")
-            btnSubmit.setTitle(title, for: UIControlState())
+            btnSubmit.setTitle(title, for: UIControl.State())
             btnSubmit.isHidden = false
         } else {
             btnSubmit.isHidden = true
@@ -204,7 +204,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         if usingButtons.contains(.Cancel) {
             let title = delegate?.titleForCropVCCancelButton() ?? NSLocalizedString("Cancel", comment: "")
-            btnCancel.setTitle(title, for: UIControlState())
+            btnCancel.setTitle(title, for: UIControl.State())
             btnCancel.isHidden = false
         } else {
             btnCancel.isHidden = true
@@ -359,7 +359,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         let fillLayer: CAShapeLayer = CAShapeLayer();
         fillLayer.path = path.cgPath;
-        fillLayer.fillRule = kCAFillRuleEvenOdd;
+        fillLayer.fillRule = CAShapeLayerFillRule.evenOdd;
         fillLayer.fillColor = UIColor(white: 0.0, alpha: 0.75).cgColor;
         fillLayer.opacity = 1.0;
 
@@ -383,7 +383,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
         
         let fillLayer: CAShapeLayer = CAShapeLayer();
         fillLayer.path = path.cgPath;
-        fillLayer.fillRule = kCAFillRuleEvenOdd;
+        fillLayer.fillRule = CAShapeLayerFillRule.evenOdd;
         fillLayer.fillColor = UIColor(white: 0.0, alpha: 0.75).cgColor;
         fillLayer.opacity = 1.0;
         
@@ -492,7 +492,7 @@ open class ORCropImageViewController: UIViewController, UIScrollViewDelegate {
     }
     
     func onFail(withMessage msg: String) {
-        let userInfo: [AnyHashable: Any] = [kCFErrorLocalizedDescriptionKey as AnyHashable : msg]
+        let userInfo: [String: Any] = [kCFErrorLocalizedDescriptionKey as String : msg]
         let error = NSError(domain: "url_error", code: -1, userInfo: userInfo)
         delegate?.cropVCDidFailToPrepareImage(error)
     }
