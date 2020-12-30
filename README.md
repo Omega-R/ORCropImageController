@@ -1,6 +1,6 @@
 # ORCropImageController
 
-[![CI Status](https://img.shields.io/travis/Egor Lindberg/ORCropImageController.svg?style=flat)](https://travis-ci.org/Egor Lindberg/ORCropImageController)
+[![CI Status](https://img.shields.io/travis/Egor%20Lindberg/ORCropImageController.svg?style=flat)](https://travis-ci.org/Egor%20Lindberg/ORCropImageController)
 [![Version](https://img.shields.io/cocoapods/v/ORCropImageController.svg?style=flat)](https://cocoapods.org/pods/ORCropImageController)
 [![License](https://img.shields.io/cocoapods/l/ORCropImageController.svg?style=flat)](https://cocoapods.org/pods/ORCropImageController)
 [![Platform](https://img.shields.io/cocoapods/p/ORCropImageController.svg?style=flat)](https://cocoapods.org/pods/ORCropImageController)
