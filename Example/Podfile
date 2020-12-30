@@ -1,11 +1,13 @@
 use_frameworks!
 
-target 'ORCropImageController_Example', :exclusive => true do
-  pod 'ORCropImageController', :path => '../'
-end
+platform :ios, '9.0'
 
-target 'ORCropImageController_Tests', :exclusive => true do
+target 'ORCropImageController_Example' do
   pod 'ORCropImageController', :path => '../'
 
-  
+  target 'ORCropImageController_Tests' do
+    inherit! :search_paths
+
+    pod 'FBSnapshotTestCase' , '~> 2.1.4'
+  end
 end

@@ -3,13 +3,13 @@
 # valid spec before submitting.
 #
 # Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
+# To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
 #
 
 Pod::Spec.new do |s|
-  s.name             = "ORCropImageController"
-  s.version          = "0.1.4"
-  s.summary          = "ORCropImageController allows user to perform crop of the image."
+  s.name             = 'ORCropImageController'
+  s.version          = '1.0.0'
+  s.summary          = 'ORCropImageController - crop of the image.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,24 +18,26 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+'ORCropImageController allows user to perform crop of the image.'
                        DESC
 
-  s.homepage         = "https://bitbucket.org/omegarinc/orcropimagecontroller"
-  # s.screenshots     = ""
-  s.license          = 'MIT'
-  s.author           = { "Nikita Egoshin" => "nikita.egoshin@omega-r.com" }
-  s.source           = { :git => "https://NikitaEgoshin@bitbucket.org/omegarinc/orcropimagecontroller.git", :tag => s.version.to_s }
+  s.homepage         = 'https://github.com/Omega-R/ORCropImageController'
+  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
+  s.license          = { :type => 'MIT', :file => 'LICENSE' }
+  s.author           = { "Nikita Egoshin" => "nikita.egoshin@omega-r.com", 'Egor Lindberg' => 'egor.lindberg@omega-r.com' }
+  s.source           = { :git => 'https://github.com/Omega-R/ORCropImageController.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
-  s.source_files = 'ORCropImageController/Classes/**/*'
+  s.source_files = 'Sources/ORCropImageController/Classes/**/*'
+  s.swift_version = '5.0'
   
   # s.resource_bundles = {
   #   'ORCropImageController' => ['ORCropImageController/Assets/*.png']
   # }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit'
+  s.frameworks = 'UIKit', 'QuartzCore'
+  # s.dependency 'AFNetworking', '~> 2.3'
 end

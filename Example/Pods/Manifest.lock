@@ -1,14 +1,27 @@
 PODS:
-  - ORCropImageController (0.1.0)
+  - FBSnapshotTestCase (2.1.4):
+    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
+  - FBSnapshotTestCase/Core (2.1.4)
+  - FBSnapshotTestCase/SwiftSupport (2.1.4):
+    - FBSnapshotTestCase/Core
+  - ORCropImageController (1.0.0)
 
 DEPENDENCIES:
+  - FBSnapshotTestCase (~> 2.1.4)
   - ORCropImageController (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - FBSnapshotTestCase
 
 EXTERNAL SOURCES:
   ORCropImageController:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
-  ORCropImageController: 7bb98c55dcd9ec377d688280d91ff31f57f68559
+  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
+  ORCropImageController: 5f33519ea0745f4e18b323bfa0c2f6a1a2fe0b20
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 48457d080716906c99156bfadcd71bdf796e2fac
+
+COCOAPODS: 1.8.3
